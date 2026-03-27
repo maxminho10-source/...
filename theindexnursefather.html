@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furioso Replica</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0a0a0a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #stage {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            border-bottom: 2px solid #333;
+            overflow: hidden;
+        }
+
+        /* The "Roland" Figure */
+        #actor {
+            position: absolute;
+            bottom: 20px;
+            left: 100px;
+            width: 40px;
+            height: 80px;
+            background: #fff;
+            transition: left 0.1s ease;
+            z-index: 10;
+        }
+
+        /* Slash Effects */
+        .slash {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            height: 4px;
+            transform-origin: center;
+            opacity: 0;
+            z-index: 5;
+        }
+
+        .heavy-slash {
+            background: linear-gradient(90deg, transparent, #ff3c00, #fff, transparent);
+            height: 15px;
+        }
+
+        /* UI Elements */
+        #ui-text {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 24px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+
+        /* Animations */
+        @keyframes strike {
+            0% { transform: scaleX(0) rotate(var(--angle)); opacity: 1; }
+            50% { transform: scaleX(1.5) rotate(var(--angle)); opacity: 1; }
+            100% { transform: scaleX(2) rotate(var(--angle)); opacity: 0; }
+        }
+
+        .animate-strike {
+            animation: strike 0.2s forwards ease-out;
+        }
+
+        .shake {
+            animation: shake-anim 0.1s infinite;
+        }
+
+        @keyframes shake-anim {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            75% { transform: translate(5px, -5px); }
+            100% { transform: translate(0,0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-text">Furioso</div>
+    <div id="stage">
+        <div id="actor"></div>
+    </div>
+
+    <script>
+        const stage = document.getElementById('stage');
+        const actor = document.getElementById('actor');
+        const ui = document.getElementById('ui-text');
+
+        // Sequence of slashes: [x, y, angle, delay, isHeavy]
+        const furiosoStrikes = [
+            [200, 250, 45, 0, false],
+            [250, 200, -30, 150, false],
+            [300, 280, 90, 300, false],
+            [350, 220, 10, 450, false],
+            [400, 260, -60, 600, false],
+            [450, 210, 120, 750, false],
+            [500, 240, 0, 900, false],
+            [550, 270, 45, 1050, false],
+            [600, 230, -15, 1200, false],
+            [400, 200, 0, 1500, true] // The Final Hit
+        ];
+
+        function createSlash(x, y, angle, heavy) {
+            const slash = document.createElement('div');
+            slash.className = `slash ${heavy ? 'heavy-slash' : ''}`;
+            slash.style.left = x + 'px';
+            slash.style.top = y + 'px';
+            slash.style.width = heavy ? '400px' : '200px';
+            slash.style.setProperty('--angle', `${angle}deg`);
+            
+            stage.appendChild(slash);
+            slash.classList.add('animate-strike');
+
+            // Screen shake on hit
+            stage.classList.add('shake');
+            setTimeout(() => stage.classList.remove('shake'), 100);
+
+            // Cleanup
+            setTimeout(() => slash.remove(), 300);
+        }
+
+        function runFurioso() {
+            furiosoStrikes.forEach(([x, y, angle, delay, heavy]) => {
+                setTimeout(() => {
+                    // Move actor to the strike position
+                    actor.style.left = (x - 20) + 'px';
+                    createSlash(x, y, angle, heavy);
+                    
+                    if(heavy) {
+                        ui.style.color = "#ff3c00";
+                        ui.innerText = "GONE WITH THE PERCEPTION";
+                    }
+                }, delay);
+            });
+        }
+
+        // Trigger on click
+        window.addEventListener('click', () => {
+            ui.style.color = "#fff";
+            ui.innerText = "Furioso";
+            runFurioso();
+        });
+    </script>
+</body>
+</html>
